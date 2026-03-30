@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Minewater Chat · Acceso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0c1117;
+      --surface: #131920;
+      --surface2: #1a2330;
+      --border: #1e2d3d;
+      --accent: #00d9a6;
+      --accent-dim: rgba(0,217,166,.15);
+      --accent-glow: rgba(0,217,166,.4);
+      --text: #e2eaf4;
+      --muted: #4a6080;
+      --danger: #ff4757;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left {
+      position: relative; overflow: hidden;
+      background: linear-gradient(160deg, #0d1a24 0%, #0c1117 100%);
+      display: flex; flex-direction: column;
+      justify-content: space-between; padding: 40px;
+    }
+    .left-bg {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .left-bg canvas { width: 100%; height: 100%; }
+
+    .left-logo {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 12px;
+      font-size: 18px; font-weight: 800;
+    }
+    .left-logo-icon {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: linear-gradient(135deg, var(--accent), #00b8d9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 24px var(--accent-glow);
+    }
+
+    .left-center {
+      position: relative; z-index: 1;
+    }
+    .left-tag {
+      display: inline-block;
+      background: var(--accent-dim); border: 1px solid rgba(0,217,166,.2);
+      color: var(--accent); font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; padding: 5px 14px; border-radius: 999px;
+      margin-bottom: 20px; text-transform: uppercase;
+    }
+    .left-title {
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 900; line-height: 1.05;
+      letter-spacing: -.03em; margin-bottom: 16px;
+    }
+    .left-title .acc {
+      background: linear-gradient(90deg, var(--accent), #00b8d9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .left-desc {
+      color: var(--muted); font-size: 15px; line-height: 1.7;
+      max-width: 360px;
+    }
+
+    /* Chat bubbles decoration */
+    .chat-bubbles {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; gap: 10px; margin-top: 40px;
+    }
+    .cb {
+      padding: 11px 16px; border-radius: 16px;
+      font-size: 13px; display: flex; align-items: flex-end; gap: 10px;
+      max-width: 320px;
+    }
+    .cb-in {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+    }
+    .cb-out {
+      background: rgba(0,217,166,.15);
+      border: 1px solid rgba(0,217,166,.2);
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+    }
+    .cb-time { font-size: 10px; color: var(--muted); white-space: nowrap; }
+
+    .left-footer {
+      position: relative; z-index: 1;
+      color: var(--muted); font-size: 12px;
+    }
+    .left-footer a { color: var(--accent); text-decoration: none; }
+    .left-footer a:hover { text-decoration: underline; }
+
+    /* ── RIGHT PANEL ── */
+    .right {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 60px 56px;
+      position: relative;
+    }
+
+    .back-btn {
+      position: absolute; top: 24px; left: 24px;
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--muted); font-size: 13px; text-decoration: none;
+      padding: 8px 14px; border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      transition: all .2s;
+    }
+    .back-btn:hover { color: var(--text); border-color: var(--accent); }
+
+    .right-inner { width: 100%; max-width: 360px; }
+
+    .right-header { margin-bottom: 36px; }
+    .right-header h1 {
+      font-size: 28px; font-weight: 800;
+      letter-spacing: -.02em; margin-bottom: 8px;
+    }
+    .right-header p { color: var(--muted); font-size: 14px; }
+
+    /* FORM */
+    .form-group {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      font-size: 12px; font-weight: 700;
+      color: #7a9ab8; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .input-wrap {
+      position: relative; display: flex; align-items: center;
+    }
+    .input-wrap svg.ii {
+      position: absolute; left: 13px; pointer-events: none;
+      color: var(--muted);
+    }
+    .input-wrap input {
+      width: 100%;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 13px 44px 13px 42px;
+      color: var(--text); font-family: 'Outfit', sans-serif; font-size: 14px;
+      outline: none; transition: all .2s;
+    }
+    .input-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,217,166,.1);
+    }
+    .input-wrap input::placeholder { color: var(--muted); }
+    .eye-btn {
+      position: absolute; right: 12px;
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 4px;
+      transition: color .15s;
+    }
+    .eye-btn:hover { color: var(--text); }
+
+    .error-box {
+      background: rgba(255,71,87,.08);
+      border: 1px solid rgba(255,71,87,.25);
+      color: #ff6b78; font-size: 13px;
+      padding: 11px 15px; border-radius: 11px;
+      margin-bottom: 16px; display: none;
+    }
+    .error-box.show { display: block; }
+
+    .btn-login {
+      width: 100%;
+      background: var(--accent); color: #0c1117;
+      border: none; border-radius: 12px;
+      padding: 14px; font-size: 15px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; cursor: pointer;
+      transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-login:hover:not(:disabled) {
+      background: #00f0b8; box-shadow: 0 8px 28px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+    .btn-login:disabled { opacity: .55; cursor: not-allowed; }
+
+    .spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(12,17,23,.3);
+      border-top-color: #0c1117;
+      animation: spin .7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .login-hint {
+      margin-top: 28px; text-align: center;
+      color: var(--muted); font-size: 13px; line-height: 1.7;
+    }
+    .login-hint strong { color: var(--text); }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0; color: var(--muted); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    @media (max-width: 768px) {
+      body { grid-template-columns: 1fr; }
+      .left { display: none; }
+      .right { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="left-bg"><canvas id="miniCanvas"></canvas></div>
+
+  <div class="left-logo">
+    <div class="left-logo-icon">💬</div>
+    Minewater Chat
+  </div>
+
+  <div>
+    <div class="left-center">
+      <span class="left-tag">Solo miembros</span>
+      <h2 class="left-title">
+        Mensajes<br/>
+        <span class="acc">al instante</span>
+      </h2>
+      <p class="left-desc">
+        Habla con el resto de la comunidad en tiempo real. Accede con tu cuenta del panel.
+      </p>
+    </div>
+
+    <div class="chat-bubbles">
+      <div class="cb cb-in">
+        ¿Alguien ha visto el anuncio de hoy? 👀
+        <span class="cb-time">12:34</span>
+      </div>
+      <div class="cb cb-out">
+        Sí! Muy buenas noticias 🔥
+        <span class="cb-time">12:35</span>
+      </div>
+      <div class="cb cb-in">
+        Os veo mañana en la reunión 📅
+        <span class="cb-time">12:36</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="left-footer">
+    ¿Problemas para entrar? Contacta con el <a href="#">Owner</a>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <a href="index.html" class="back-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Inicio
+  </a>
+
+  <div class="right-inner">
+    <div class="right-header">
+      <h1>Bienvenido</h1>
+      <p>Accede con tu cuenta de Minewater</p>
+    </div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <div class="input-wrap">
+          <svg class="ii" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+          <input type="email" id="email" placeholder="tu@correo.com" required autocomplete="email"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <div class="input-wrap">
+          <svg class="ii" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password"/>
+          <button type="button" class="eye-btn" id="eyeBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="eyeIcon">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="error-box" id="errorBox"></div>
+
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span id="btnLabel">Entrar al chat</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+    </form>
+
+    <div class="login-hint">
+      ¿No tienes cuenta?<br/>
+      Pide al <strong>Owner de NexoPanel</strong> que te cree una.
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ── CONFIG ──────────────────────────────────────────
+  const SUPABASE_URL      = "https://gkuuwuqwumoorqmqkuka.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrdXV3dXF3dW1vb3JxbXFrdWthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjUwMDksImV4cCI6MjA5MDQ0MTAwOX0.ME8C09iSbowqcak2Bezbd4otWzTXyR3bV8kf4hfodUg";
+  // ───────────────────────────────────────────────────
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Redirigir si ya hay sesión
+  (async () => {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) window.location.href = 'chat.html';
+    } catch(_) {}
+  })();
+
+  // ── EYE TOGGLE ──────────────────────────────────────
+  document.getElementById('eyeBtn').addEventListener('click', () => {
+    const inp  = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+        <line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      inp.type = 'password';
+      icon.innerHTML = `<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  });
+
+  // ── LOGIN ────────────────────────────────────────────
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errBox   = document.getElementById('errorBox');
+    const btn      = document.getElementById('loginBtn');
+    const label    = document.getElementById('btnLabel');
+    const spinner  = document.getElementById('spinner');
+
+    errBox.classList.remove('show');
+    btn.disabled = true;
+    label.textContent = 'Entrando…';
+    spinner.style.display = 'block';
+
+    try {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      window.location.href = 'chat.html';
+    } catch (err) {
+      errBox.textContent = traducirError(err.message);
+      errBox.classList.add('show');
+      btn.disabled = false;
+      label.textContent = 'Entrar al chat';
+      spinner.style.display = 'none';
+    }
+  });
+
+  function traducirError(msg) {
+    if (msg.includes('Invalid login'))    return 'Correo o contraseña incorrectos.';
+    if (msg.includes('Email not confirmed')) return 'Confirma tu correo antes de entrar.';
+    if (msg.includes('Too many requests')) return 'Demasiados intentos. Espera un momento.';
+    return 'Error al iniciar sesión. Inténtalo de nuevo.';
+  }
+
+  // ── MINI CANVAS ──────────────────────────────────────
+  const c = document.getElementById('miniCanvas');
+  const ctx = c.getContext('2d');
+  function resizeC() { c.width = c.parentElement.offsetWidth; c.height = c.parentElement.offsetHeight; }
+  resizeC();
+  window.addEventListener('resize', resizeC);
+
+  const pts = Array.from({length:30}, () => ({
+    x: Math.random() * c.width,
+    y: Math.random() * c.height,
+    dx: (Math.random()-.5)*.25,
+    dy: (Math.random()-.5)*.25,
+    r: Math.random()*1.2+.4,
+    o: Math.random()*.3+.1
+  }));
+
+  function drawC() {
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p => {
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,217,166,${p.o})`; ctx.fill();
+      p.x+=p.dx; p.y+=p.dy;
+      if(p.x<0||p.x>c.width) p.dx*=-1;
+      if(p.y<0||p.y>c.height) p.dy*=-1;
+    });
+    requestAnimationFrame(drawC);
+  }
+  drawC();
+</script>
+</body>
+</html>
