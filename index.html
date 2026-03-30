@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Minewater Chat</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: linear-gradient(135deg, #020617, #0f172a);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+h1 { color: #22c55e; font-size: 40px; }
+
+button {
+  padding: 12px 25px;
+  background: #22c55e;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div>
+  <h1>Minewater Chat</h1>
+  <p>Chat privado con mensajes y grupos.</p>
+  <button onclick="goLogin()">Entrar</button>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient('TU_URL','TU_ANON_KEY')
+
+// auto-login
+const { data: { user } } = await supabase.auth.getUser()
+if (user) window.location.href = 'dashboard.html'
+
+window.goLogin = () => window.location.href = 'login.html'
+</script>
+
+</body>
+</html>
